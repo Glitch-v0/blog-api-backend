@@ -1,0 +1,32 @@
+{
+  "name": "back-end",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "concurrently \"node --watch app\" \"npx prisma studio\"",
+    "prisma": "npx prisma migrate dev && npx prisma generate && node --watch app",
+    "node": "node app"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@prisma/client": "^5.21.1",
+    "@quixo3/prisma-session-store": "^3.1.13",
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.21.0",
+    "express-async-handler": "^1.2.0",
+    "express-session": "^1.18.0",
+    "express-validator": "^7.2.0",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0"
+  },
+  "devDependencies": {
+    "prettier": "3.3.3",
+    "prisma": "^5.21.1"
+  },
+  "type": "module"
+}
