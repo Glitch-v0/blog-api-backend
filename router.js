@@ -97,19 +97,19 @@ router.get("/posts", async (req, res) => {
   res.json(posts);
 });
 
-router.get("/posts/:id", async (req, res) => {
+router.get("/posts/:postId", async (req, res) => {
   const post = await prisma.post.findUnique({
     where: {
-      id: req.params.id,
+      id: req.params.postId,
     },
   });
   res.json(post);
 });
 
-router.get("/posts/:id/comments", async (req, res) => {
+router.get("/posts/:postId/comments", async (req, res) => {
   const comments = await prisma.comment.findMany({
     where: {
-      postId: req.params.id,
+      postId: req.params.postId,
     },
   });
   res.json(comments);
@@ -133,7 +133,7 @@ router.post(
 );
 
 router.post(
-  "/posts/:id/comments",
+  "/posts/:postId/comments",
   passport.authenticate("jwt", { session: false }),
   expressAsyncHandler(async (req, res) => {
     const comment = await prisma.comment.create({
@@ -141,7 +141,7 @@ router.post(
         id: uuidv4(),
         content: req.body.content,
         date: new Date().toISOString(),
-        postId: req.params.id,
+        postId: req.params.postId,
         userId: req.user.id,
       },
     });
@@ -150,13 +150,13 @@ router.post(
 );
 
 router.put(
-  "/posts/:id",
+  "/posts/:postId",
   passport.authenticate("jwt", { session: false }),
   mustBeAdmin,
   expressAsyncHandler(async (req, res) => {
     const post = await prisma.post.update({
       where: {
-        id: req.params.id,
+        id: req.params.postId,
       },
       data: {
         title: req.body.title,
