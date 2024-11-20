@@ -11,6 +11,7 @@ import {
   usernameValidation,
   passwordValidation,
 } from "./middleware/validators.js";
+import { mustBeAdmin } from "./middleware/mustBeAdmin.js";
 import prisma from "./app.js";
 
 const router = express.Router();
@@ -117,6 +118,7 @@ router.get("/posts/:id/comments", async (req, res) => {
 router.post(
   "/posts",
   passport.authenticate("jwt", { session: false }),
+  mustBeAdmin,
   expressAsyncHandler(async (req, res) => {
     const post = await prisma.post.create({
       data: {
@@ -124,6 +126,41 @@ router.post(
         title: req.body.title,
         content: req.body.content,
         date: new Date().toISOString(),
+      },
+    });
+    res.json(post);
+  })
+);
+
+router.post(
+  "/posts/:id/comments",
+  passport.authenticate("jwt", { session: false }),
+  expressAsyncHandler(async (req, res) => {
+    const comment = await prisma.comment.create({
+      data: {
+        id: uuidv4(),
+        content: req.body.content,
+        date: new Date().toISOString(),
+        postId: req.params.id,
+        userId: req.user.id,
+      },
+    });
+    res.json(comment);
+  })
+);
+
+router.put(
+  "/posts/:id",
+  passport.authenticate("jwt", { session: false }),
+  mustBeAdmin,
+  expressAsyncHandler(async (req, res) => {
+    const post = await prisma.post.update({
+      where: {
+        id: req.params.id,
+      },
+      data: {
+        title: req.body.title,
+        content: req.body.content,
       },
     });
     res.json(post);
