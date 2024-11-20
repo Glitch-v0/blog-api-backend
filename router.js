@@ -11,7 +11,11 @@ import {
   usernameValidation,
   passwordValidation,
 } from "./middleware/validators.js";
-import { mustBeAdmin } from "./middleware/mustBeAdmin.js";
+import {
+  mustBeAdmin,
+  mustBeAdminOrOwner,
+  mustBeOwner,
+} from "./middleware/mustBeAdmin.js";
 import prisma from "./app.js";
 
 const router = express.Router();
@@ -143,6 +147,37 @@ router.post(
         date: new Date().toISOString(),
         postId: req.params.postId,
         userId: req.user.id,
+      },
+    });
+    res.json(comment);
+  })
+);
+
+router.put(
+  "/posts/:postId/comments/:commentId",
+  passport.authenticate("jwt", { session: false }),
+  mustBeOwner,
+  expressAsyncHandler(async (req, res) => {
+    const comment = await prisma.comment.update({
+      where: {
+        id: req.params.commentId,
+      },
+      data: {
+        content: req.body.content,
+      },
+    });
+    res.json(comment);
+  })
+);
+
+router.delete(
+  "/posts/:postId/comments/:commentId",
+  passport.authenticate("jwt", { session: false }),
+  mustBeAdminOrOwner,
+  expressAsyncHandler(async (req, res) => {
+    const comment = await prisma.comment.delete({
+      where: {
+        id: req.params.commentId,
       },
     });
     res.json(comment);
