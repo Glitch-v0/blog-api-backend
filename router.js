@@ -101,14 +101,35 @@ router.get("/posts", async (req, res) => {
     orderBy: {
       date: "desc",
     },
+    include: {
+      _count: {
+        select: {
+          comments: true,
+        },
+      },
+    },
   });
-  res.json(posts);
+
+  // Transform the posts to rename _count.comments to comments
+  const transformedPosts = posts.map((post) => {
+    const { _count, ...rest } = post; // Destructure to get _count and rest of the post
+    return {
+      ...rest,
+      comments: _count.comments, // Rename _count.comments to comments
+    };
+  });
+
+  console.log(transformedPosts);
+  res.json(transformedPosts);
 });
 
 router.get("/posts/:postId", async (req, res) => {
   const post = await prisma.post.findUnique({
     where: {
       id: req.params.postId,
+    },
+    include: {
+      comments: true,
     },
   });
   res.json(post);
