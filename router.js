@@ -97,7 +97,11 @@ router.get("/logout", (req, res) => {
 });
 
 router.get("/posts", async (req, res) => {
-  const posts = await prisma.post.findMany();
+  const posts = await prisma.post.findMany({
+    orderBy: {
+      date: "desc",
+    },
+  });
   res.json(posts);
 });
 
@@ -196,6 +200,22 @@ router.put(
       data: {
         title: req.body.title,
         content: req.body.content,
+      },
+    });
+    res.json(post);
+  })
+);
+
+router.delete(
+  "/posts/:postId",
+  passport.authenticate("jwt", { session: false }),
+  mustBeAdmin,
+  expressAsyncHandler(async (req, res) => {
+    console.log(req.params);
+    console.log("Received delete post request for post ID:", req.params.postId);
+    const post = await prisma.post.delete({
+      where: {
+        id: req.params.postId,
       },
     });
     res.json(post);
