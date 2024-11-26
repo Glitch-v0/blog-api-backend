@@ -128,6 +128,8 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   mustBeAdmin,
   expressAsyncHandler(async (req, res) => {
+    console.log("Recieved new post request");
+    console.log(`Title: ${req.body.title} \n Content: ${req.body.content}`);
     const post = await prisma.post.create({
       data: {
         id: uuidv4(),
@@ -193,6 +195,10 @@ router.put(
   passport.authenticate("jwt", { session: false }),
   mustBeAdmin,
   expressAsyncHandler(async (req, res) => {
+    console.log("Recieved edit post request");
+    console.log(
+      `Params: ${req.params.postId} \n Title: ${req.body.title} \n Content: ${req.body.content}`
+    );
     const post = await prisma.post.update({
       where: {
         id: req.params.postId,

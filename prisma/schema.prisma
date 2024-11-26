@@ -23,11 +23,12 @@ model User {
 }
 
 model Post {
-  id       String    @id @db.Uuid
-  title    String
-  content  String
-  date     DateTime  @default(now()) @db.Timestamptz()
-  comments Comment[]
+  id        String    @id @db.Uuid
+  title     String
+  content   String
+  date      DateTime  @default(now()) @db.Timestamptz()
+  published Boolean   @default(false)
+  comments  Comment[]
 }
 
 model Comment {
