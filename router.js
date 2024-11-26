@@ -197,16 +197,13 @@ router.put(
   expressAsyncHandler(async (req, res) => {
     console.log("Recieved edit post request");
     console.log(
-      `Params: ${req.params.postId} \n Title: ${req.body.title} \n Content: ${req.body.content}`
+      `Params: ${req.params.postId} \n Updates: ${JSON.stringify(req.body)}`
     );
     const post = await prisma.post.update({
       where: {
         id: req.params.postId,
       },
-      data: {
-        title: req.body.title,
-        content: req.body.content,
-      },
+      data: req.body,
     });
     res.json(post);
   })
