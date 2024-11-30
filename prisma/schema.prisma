@@ -20,6 +20,7 @@ model User {
   role     String
   password String
   comments Comment[]
+  Vote     Vote[]
 }
 
 model Post {
@@ -29,16 +30,27 @@ model Post {
   date      DateTime  @default(now()) @db.Timestamptz()
   published Boolean   @default(false)
   comments  Comment[]
+  Vote      Vote[]
 }
 
 model Comment {
+  id      String   @id @db.Uuid
+  content String
+  date    DateTime @default(now()) @db.Timestamptz()
+  post    Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId  String   @db.Uuid
+  user    User     @relation(fields: [userId], references: [id])
+  userId  String   @db.Uuid
+  Vote    Vote[]
+}
+
+model Vote {
   id        String   @id @db.Uuid
-  content   String
-  date      DateTime @default(now()) @db.Timestamptz()
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  postId    String   @db.Uuid
+  comment   Comment? @relation(fields: [commentId], references: [id])
+  commentId String?  @db.Uuid
+  post      Post?    @relation(fields: [postId], references: [id])
+  postId    String?  @db.Uuid
   user      User     @relation(fields: [userId], references: [id])
   userId    String   @db.Uuid
-  upvotes   Int      @default(0)
-  downvotes Int      @default(0)
+  value     Int      @default(1)
 }
