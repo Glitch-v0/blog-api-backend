@@ -9,3 +9,7 @@ export function createOrRefreshToken(user) {
 export function verifyToken(token) {
   return jwt.verify(token, process.env.JWT_SECRET);
 }
+
+export function decodeToken(token) {
+  return jwt.decode(token);
+}

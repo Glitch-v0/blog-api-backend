@@ -40,9 +40,21 @@ router.get("/:postId", async (req, res) => {
       id: req.params.postId,
     },
     include: {
-      comments: true,
+      comments: {
+        include: {
+          user: {
+            select: {
+              username: true,
+            },
+          },
+        },
+        orderBy: {
+          date: "desc",
+        },
+      },
     },
   });
+  console.log(post);
   res.json(post);
 });
 

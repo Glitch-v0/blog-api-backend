@@ -13,6 +13,19 @@ const router = express.Router({ mergeParams: true });
 
 router.use("/posts/:postId/comments", router);
 
+router.get("/", async (req, res) => {
+  const comments = await prisma.comment.findMany({
+    where: {
+      postId: req.params.postId,
+    },
+    orderBy: {
+      date: "desc",
+    },
+  });
+  console.log(comments);
+  res.json(comments);
+});
+
 router.post(
   "/",
   passport.authenticate("jwt", { session: false }),
@@ -29,16 +42,6 @@ router.post(
     res.json(comment);
   })
 );
-
-router.get("/", async (req, res) => {
-  const comments = await prisma.comment.findMany({
-    where: {
-      postId: req.params.postId,
-    },
-  });
-  console.log(comments);
-  res.json(comments);
-});
 
 router.put(
   "/:commentId",
