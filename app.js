@@ -43,7 +43,16 @@ const corsOptions = {
   origin: "http://localhost:5174",
 };
 app.use(cors(corsOptions));
+app.use((req, res, next) => {
+  console.log(`Route called: ${req.method} ${req.originalUrl}`);
+  next();
+});
+
 app.use("/api/v1", router);
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send("Internal server error!");
+});
 
 app.listen(3000, () => console.log("Server running on port 3000"));
 

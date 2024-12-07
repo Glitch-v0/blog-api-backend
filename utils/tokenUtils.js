@@ -11,5 +11,8 @@ export function verifyToken(token) {
 }
 
 export function decodeToken(token) {
+  if (token && token.startsWith("Bearer ")) {
+    token = token.slice(7); // Remove 'Bearer ' (7 characters)
+  }
   return jwt.decode(token);
 }

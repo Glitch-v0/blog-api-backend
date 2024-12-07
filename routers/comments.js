@@ -9,42 +9,37 @@ import {
   mustBeOwner,
 } from "../middleware/mustBeAdmin.js";
 
-const router = express.Router({ mergeParams: true });
-
-router.use("/posts/:postId/comments", router);
-
-router.get("/", async (req, res) => {
-  const comments = await prisma.comment.findMany({
-    where: {
-      postId: req.params.postId,
-    },
-    orderBy: {
-      date: "desc",
-    },
-  });
-  console.log(comments);
-  res.json(comments);
-});
+const router = express.Router();
 
 router.post(
-  "/",
+  "/posts/:postId/comments",
   passport.authenticate("jwt", { session: false }),
   expressAsyncHandler(async (req, res) => {
-    const comment = await prisma.comment.create({
-      data: {
-        id: uuidv4(),
-        content: req.body.content,
-        date: new Date().toISOString(),
-        postId: req.params.postId,
-        userId: req.user.id,
-      },
-    });
-    res.json(comment);
+    console.log("Trying to create comment...");
+    console.log(req.body);
+    console.log(req.params);
+    if (!req.params.postId) {
+      return res.status(400).json({ message: "Missing postId" });
+    }
+    try {
+      const comment = await prisma.comment.create({
+        data: {
+          id: uuidv4(),
+          content: req.body.content,
+          date: new Date().toISOString(),
+          postId: req.params.postId,
+          userId: req.user.id,
+        },
+      });
+      res.json(comment);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Error creating comment" });
+    }
   })
 );
-
 router.put(
-  "/:commentId",
+  "/posts/:postId/comments/:commentId",
   passport.authenticate("jwt", { session: false }),
   mustBeOwner,
   expressAsyncHandler(async (req, res) => {
@@ -61,7 +56,7 @@ router.put(
 );
 
 router.delete(
-  "/:commentId",
+  "/posts/:postId/comments/:commentId",
   passport.authenticate("jwt", { session: false }),
   mustBeAdminOrOwner,
   expressAsyncHandler(async (req, res) => {
