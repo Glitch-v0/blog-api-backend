@@ -15,7 +15,7 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 
 // Middleware to parse JSON bodies
-app.use(express.json()); // For Express v4.16 and above
+app.use(express.json());
 
 export const prisma = new PrismaClient();
 
@@ -40,7 +40,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 const corsOptions = {
-  origin: "http://localhost:5174",
+  origins: [process.env.PUBLISHER_ORIGIN, process.env.VIEWER_ORIGIN],
 };
 app.use(cors(corsOptions));
 app.use((req, res, next) => {

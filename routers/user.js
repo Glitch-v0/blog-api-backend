@@ -43,14 +43,12 @@ router.post(
       // Returns info minus the hashed password
       res.json({ ...newUser, password });
     } catch (err) {
-      console.log(err);
       res.json(err);
     }
   }
 );
 
 router.post("/login", async (req, res) => {
-  console.log(req.body);
   try {
     const user = await prisma.user.findUnique({
       where: {
@@ -59,24 +57,30 @@ router.post("/login", async (req, res) => {
     });
 
     if (!user) {
-      console.log("User not found");
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
     const isMatch = await bcrypt.compare(req.body.password, user.password);
     if (!isMatch) {
-      console.log("Invalid password");
       return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    // Stop users logging into admin side
+    if (
+      user.role === "user" &&
+      req.get("origin") === process.env.PUBLISHER_ORIGIN
+    ) {
+      return res.status(401).json({
+        message: `Wrong login route. Use ${process.env.VIEWER_ORIGIN} instead.`,
+      });
     }
 
     // Generate a JWT if authentication is successful
     const token = createOrRefreshToken(user);
 
     // Send the token back to the client
-    console.log("You are logged in with token " + token);
     res.json({ message: "You are logged in.", token });
   } catch (error) {
-    console.log({ error });
     res.json(error);
   }
 });

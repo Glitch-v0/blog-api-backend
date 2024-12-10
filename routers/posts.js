@@ -32,8 +32,6 @@ router.get("/", async (req, res) => {
     };
   });
 
-  console.log({ transformedPosts });
-
   res.json(transformedPosts);
 });
 
@@ -74,8 +72,6 @@ router.get("/:postId", async (req, res) => {
     ? votes.filter((vote) => vote.userId === decodedToken.id)
     : []; // If the user is not authenticated, no votes to check
 
-  console.log({ userVotes });
-
   post.comments.forEach((comment) => {
     //Applies each vote to each comment in the post
     comment.votes = votes.filter((vote) => vote.commentId === comment.id);
@@ -98,7 +94,6 @@ router.get("/:postId", async (req, res) => {
     }
   });
 
-  console.log(post.comments);
   res.json(post);
 });
 
@@ -107,6 +102,11 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   mustBeAdmin,
   expressAsyncHandler(async (req, res) => {
+    if (req.get.origin !== process.env.PUBLISHER_ORIGIN) {
+      return res.status(401).json({
+        message: `You are not authorized to publish posts from this route.`,
+      });
+    }
     const post = await prisma.post.create({
       data: {
         id: uuidv4(),
@@ -124,10 +124,11 @@ router.put(
   passport.authenticate("jwt", { session: false }),
   mustBeAdmin,
   expressAsyncHandler(async (req, res) => {
-    console.log("Recieved edit post request");
-    console.log(
-      `Params: ${req.params.postId} \n Updates: ${JSON.stringify(req.body)}`
-    );
+    if (req.get.origin !== process.env.PUBLISHER_ORIGIN) {
+      return res.status(401).json({
+        message: `You are not authorized to update posts from this route.`,
+      });
+    }
     const post = await prisma.post.update({
       where: {
         id: req.params.postId,
@@ -143,6 +144,11 @@ router.delete(
   passport.authenticate("jwt", { session: false }),
   mustBeAdmin,
   expressAsyncHandler(async (req, res) => {
+    if (req.get.origin !== process.env.PUBLISHER_ORIGIN) {
+      return res.status(401).json({
+        message: `You are not authorized to delete posts from this route.`,
+      });
+    }
     const post = await prisma.post.delete({
       where: {
         id: req.params.postId,
