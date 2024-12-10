@@ -10,19 +10,42 @@ const router = express.Router();
 router.use("/posts", router);
 
 router.get("/", async (req, res) => {
-  const posts = await prisma.post.findMany({
-    orderBy: {
-      date: "desc",
-    },
-    include: {
-      _count: {
-        select: {
-          comments: true,
+  let posts;
+
+  if (req.get("origin") === process.env.PUBLISHER_ORIGIN) {
+    console.log("getting ALL posts");
+    posts = await prisma.post.findMany({
+      orderBy: {
+        date: "desc",
+      },
+      include: {
+        _count: {
+          select: {
+            comments: true,
+          },
         },
       },
-    },
-  });
+    });
+  } else {
+    console.log("getting PUBLISHED posts");
+    posts = await prisma.post.findMany({
+      where: {
+        published: true,
+      },
+      orderBy: {
+        date: "desc",
+      },
+      include: {
+        _count: {
+          select: {
+            comments: true,
+          },
+        },
+      },
+    });
+  }
 
+  // console.log({ posts });
   // Rename _count.comments to comments
   const transformedPosts = posts.map((post) => {
     const { _count, ...rest } = post;
@@ -36,6 +59,11 @@ router.get("/", async (req, res) => {
 });
 
 router.get("/:postId", async (req, res) => {
+  const { postId } = req.params;
+  if (!postId || postId === "undefined") {
+    // Invalid postId, return a 400 error early
+    return res.status(400).json({ message: "Invalid or missing postId" });
+  }
   const post = await prisma.post.findUnique({
     where: {
       id: req.params.postId,
@@ -92,6 +120,15 @@ router.get("/:postId", async (req, res) => {
       }
       comment.userVote = commentVote;
     }
+
+    // Check if comment belongs to user
+    if (decodedToken) {
+      if (comment.userId === decodedToken.id) {
+        comment.isOwner = true;
+      } else {
+        comment.isOwner = false;
+      }
+    }
   });
 
   res.json(post);
@@ -124,17 +161,21 @@ router.put(
   passport.authenticate("jwt", { session: false }),
   mustBeAdmin,
   expressAsyncHandler(async (req, res) => {
-    if (req.get.origin !== process.env.PUBLISHER_ORIGIN) {
+    console.log("Reached the put route");
+    if (req.get("origin") !== process.env.PUBLISHER_ORIGIN) {
+      console.log("DENIED!");
       return res.status(401).json({
         message: `You are not authorized to update posts from this route.`,
       });
     }
+    console.log("Trying prisma query...");
     const post = await prisma.post.update({
       where: {
         id: req.params.postId,
       },
       data: req.body,
     });
+    console.log({ post });
     res.json(post);
   })
 );
@@ -144,7 +185,7 @@ router.delete(
   passport.authenticate("jwt", { session: false }),
   mustBeAdmin,
   expressAsyncHandler(async (req, res) => {
-    if (req.get.origin !== process.env.PUBLISHER_ORIGIN) {
+    if (req.get("origin") !== process.env.PUBLISHER_ORIGIN) {
       return res.status(401).json({
         message: `You are not authorized to delete posts from this route.`,
       });

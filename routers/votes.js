@@ -10,7 +10,6 @@ router.post(
   "/comments/:commentId/vote",
   passport.authenticate("jwt", { session: false }),
   expressAsyncHandler(async (req, res) => {
-    console.log(req.body);
     const vote = await prisma.vote.create({
       data: {
         id: uuidv4(),
@@ -43,7 +42,6 @@ router.put(
   "/comments/:commentId/vote",
   passport.authenticate("jwt", { session: false }),
   expressAsyncHandler(async (req, res) => {
-    console.log(req.body);
     const vote = await prisma.vote.update({
       where: {
         commentId_userId: {
@@ -55,7 +53,6 @@ router.put(
         value: req.body.value,
       },
     });
-    console.log({ vote });
     res.json(vote);
   })
 );

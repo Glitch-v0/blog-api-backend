@@ -49,8 +49,11 @@ app.use((req, res, next) => {
 });
 
 app.use("/api/v1", router);
+app.all("*", (req, res) => {
+  res.status(404).json({ message: "Not found" });
+});
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error(err);
   res.status(500).send("Internal server error!");
 });
 

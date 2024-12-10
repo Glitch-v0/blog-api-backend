@@ -54,6 +54,7 @@ async function main() {
       id: uuidv4(),
       title: faker.lorem.sentence(),
       content: faker.lorem.paragraphs(2),
+      published: true,
     });
   }
 
@@ -65,6 +66,7 @@ async function main() {
   // Generate Comments
   const comments = [];
   createdPosts.forEach((post) => {
+    if (post.published === false) return;
     const numComments = faker.number.int({ min: 2, max: 25 });
     for (let i = 0; i < numComments; i++) {
       const randomUser = faker.helpers.arrayElement(createdUsers);
