@@ -139,7 +139,7 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   mustBeAdmin,
   expressAsyncHandler(async (req, res) => {
-    if (req.get.origin !== process.env.PUBLISHER_ORIGIN) {
+    if (req.get("origin") !== process.env.PUBLISHER_ORIGIN) {
       return res.status(401).json({
         message: `You are not authorized to publish posts from this route.`,
       });
