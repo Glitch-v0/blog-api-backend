@@ -6,11 +6,13 @@ Admins: Can create, read, update, and delete posts; and create, read, and delete
 Users: Can read posts; and create, read, and update comments.
 
 Github Links:
-https://github.com/Glitch-v0/blog-api-backend (current)
-https://github.com/Glitch-v0/blog-api-publisher
-https://github.com/Glitch-v0/blog-api-viewer
+
+- https://github.com/Glitch-v0/blog-api-backend (current)
+- https://github.com/Glitch-v0/blog-api-publisher
+- https://github.com/Glitch-v0/blog-api-viewer
 
 Live Interactive Links:
-https://blog-backend.jonesy.monster/api/v1
-https://blog-publisher.jonesy.monster/
-https://blog.jonesy.monster/
+
+- https://blog-backend.jonesy.monster/api/v1
+- https://blog-publisher.jonesy.monster/
+- https://blog.jonesy.monster/
