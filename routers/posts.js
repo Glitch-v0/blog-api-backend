@@ -168,14 +168,12 @@ router.put(
         message: `You are not authorized to update posts from this route.`,
       });
     }
-    console.log("Trying prisma query...");
     const post = await prisma.post.update({
       where: {
         id: req.params.postId,
       },
       data: req.body,
     });
-    console.log({ post });
     res.json(post);
   })
 );
